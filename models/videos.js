@@ -9,7 +9,11 @@ const videosSchema = new mongoose.Schema({
        minlength: 5,
        maxlength: 255
    },
-   genre: mongoose.schema.Types.ObjectId,
+   genre: {
+       type: mongoose.Schema.Types.ObjectId,
+       ref: "Genre",
+       required: true
+   },
    stockLeft: {
        type: Number,
        required: true,
@@ -18,7 +22,8 @@ const videosSchema = new mongoose.Schema({
    },
    format: {
        type: String,
-       minlength: 3,
+       default: "NA",
+       minlength: 2,
        maxlength: 10
    },
    createdOn: {
@@ -33,13 +38,25 @@ const videosSchema = new mongoose.Schema({
 
 const Videos = mongoose.model("Videos", videosSchema);
 
-function validateVideo(video) {
-    const schema = {
-        name: Joi.string().min(5).max(255).required(),
-        genre: Joi.string().regex(/^[a-f\d]{24}$/i),
-        stockLeft: Joi.number().integer().min(0).max(10000).required(),
-        format: Joi.string().min(3).max(10)
-    };
+function validateVideo(video, updating) {
+    
+    let schema;
+    if( !updating ) {
+        schema = {
+            name: Joi.string().min(5).max(255).required(),
+            genre: Joi.string().regex(/^[a-f\d]{24}$/i).required(),
+            stockLeft: Joi.number().integer().min(0).max(10000).required(),
+            format: Joi.string().min(3).max(10)
+        };
+    }
+    else {
+        schema = {
+            name: Joi.string().min(5).max(255),
+            genre: Joi.string().regex(/^[a-f\d]{24}$/i),
+            stockLeft: Joi.number().integer().min(0).max(10000),
+            format: Joi.string().min(3).max(10)
+        };
+    }    
     
     return Joi.validate(video, schema);
 }

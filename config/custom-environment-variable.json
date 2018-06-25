@@ -1,13 +1,13 @@
 {
     "development": {
         "mail": {
-            "password": "vidly_dev_mail_password"
+            "password": "vidly_password"
         }
     },
     
     "production": {
         "mail": {
-            "password": "vidly_prod_mail_password"
+            "password": "vidly_password"
         }
     }
 }
