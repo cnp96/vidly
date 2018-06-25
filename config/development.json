@@ -1,0 +1,7 @@
+{
+    "development": {
+        "mail": {
+            "host": "sample-mail-server.com"
+        }
+    }
+}

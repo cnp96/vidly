@@ -1,0 +1,19 @@
+{
+  "name": "vidly",
+  "version": "1.0.0",
+  "description": "A video rental website built with node.js",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodejs app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Chinmaya Pati",
+  "license": "ISC",
+  "dependencies": {
+    "config": "^1.30.0",
+    "debug": "^3.1.0",
+    "helmet": "^3.12.1",
+    "joi": "^13.4.0",
+    "morgan": "^1.9.0"
+  }
+}
