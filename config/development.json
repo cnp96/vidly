@@ -1,7 +1,5 @@
 {
-    "development": {
-        "mail": {
-            "host": "sample-mail-server.com"
-        }
+    "mail": {
+        "host": "dev-mail-server"
     }
 }

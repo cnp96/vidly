@@ -12,6 +12,7 @@
   "dependencies": {
     "config": "^1.30.0",
     "debug": "^3.1.0",
+    "fawn": "^2.1.5",
     "helmet": "^3.12.1",
     "joi": "^13.4.0",
     "loadash": "^1.0.0",

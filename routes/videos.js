@@ -1,4 +1,3 @@
-const debugRoute = require("debug")("vidly:route-videos");
 const debugDb = require("debug")("vidly:db-videos");
 const debug = require("debug")("vidly:log");
 
@@ -9,36 +8,39 @@ const mongoose = require("mongoose");
 const { Videos, validateVideo } = require("../models/videos.js");
 const { genreExists } = require("../models/genre.js");
 
+// Retrieve all
 router.get("/", (req, res) => {
 
-    Videos.find().sort("updatedOn").populate("genre", "name").select("name stockLeft updatedOn")
-          .then(r => {
-            return res.send(r); 
-          })
-          .catch(e => {
-            debugDb("Unable to get videos...", e.message);
-            res.status(500).send("Unable to get videos. Please try after sometime.");
-          });
+    Videos.find().populate("genre", "name")
+                 .populate("creator", "name")
+                 .select("title numberInStock dailyRentalRate format")
+                 .then(r => {
+                    return res.send(r);
+                 })
+                 .catch(e => {
+                    debugDb("Unable to get videos...", e.message);
+                    res.status(500).send("Unable to get videos. Please try after sometime.");
+                 });
 });
 
+// Retrieve one
 router.get("/:id", (req, res) => {
-    try {
-        let result = mongoose.Types.ObjectId(req.params.id);
-    } catch(e) {
-        return res.redirect(302, "/api/videos");
-    }
-    
-    Videos.findById(req.params.id).populate("genre", "name").select("name stockLeft updatedOn")
-         .then(r => {
-             if(!r) return res.redirect(302, "/api/videos");
-             return res.send(r);
-         })
-         .catch(e => {
-            debugDb("Unable to get video...", e.message);
-            res.status(500).send("Unable to get the video details. Please try after sometime.");
-         });
+    if( !mongoose.Types.ObjectId.isValid(req.params.id) ) return res.redirect(302, "/api/videos");
+
+    Videos.findById(req.params.id).populate("genre", "name")
+             .populate("creator", "name")
+             .select("title numberInStock dailyRentalRate format")
+             .then(r => {
+                if(!r) return res.redirect(302, "/api/videos");
+                return res.send(r);
+             })
+             .catch(e => {
+                debugDb("Unable to get videos...", e.message);
+                res.status(500).send("Unable to get videos. Please try after sometime.");
+             });
 });
 
+// Create video
 router.post("/", async (req, res) => {
     
     const { error } = validateVideo(req.body);
@@ -47,7 +49,7 @@ router.post("/", async (req, res) => {
     const isValidGenre = await genreExists(req.body.genre);
     if( !isValidGenre ) return res.status(400).send("Not a valid genre.");
     
-    const payload = _.pick(req.body, ["name", "genre", "stockLeft"]);
+    const payload = _.pick(req.body, ["title", "creator", "genre", "numberInStock", "dailyRentalRate", "format"]);
     new Videos(payload).save()
         .then(r => {
            return res.send(r); 
@@ -58,26 +60,23 @@ router.post("/", async (req, res) => {
         });
 });
 
+// Update video
 router.put("/:id", async (req, res) => {
     
-    try {
-        let result = mongoose.Types.ObjectId(req.params.id);
-    } catch(e) {
-        return res.status(400).send("Not a valid video id.");
-    }
-    
+    if( !mongoose.Types.ObjectId.isValid(req.params.id) ) return res.status(400).send("No such video.");
+
     const { error } = validateVideo(req.body, true);
     if(error) return res.status(400).send(error.details[0].message);
     
     if( req.body.genre ) {
         const isValidGenre = await genreExists(req.body.genre);
-        if( !isValidGenre ) return res.status(400).send("Enter a valid genre.");
+        if( !isValidGenre ) return res.status(400).send("No such genre.");
     }
     
-    const payload = _.pick(req.body, ["name", "genre", "stockLeft"]);
-    Videos.findByIdAndUpdate(req.params.id, {$set: payload, $currentDate: {updatedOn: true}}, {upsert: true, new: true})
+    const payload = _.pick(req.body, ["title", "genre", "numberInStock", "dailyRentalRate", "format"]);
+    Videos.findByIdAndUpdate(req.params.id, {$set: payload, $currentDate: {updatedOn: true}}, {upsert: false, new: true})
           .then(r => {
-             if(!r) return res.status(404).send("No such video found.");
+             if(!r) return res.status(404).send("No such video.");
              return  res.send(r);
           })
           .catch(e => {
@@ -86,13 +85,10 @@ router.put("/:id", async (req, res) => {
           });
 });
 
+// Delete one video
 router.delete("/:id", (req, res) => {
     
-    try {
-        let result = mongoose.Types.ObjectId(req.params.id);
-    } catch(e) {
-        return res.status(400).send("Not a valid video id.");
-    }
+    if( !mongoose.Types.ObjectId.isValid(req.params.id) ) return res.status(400).send("No such video.");
     
     Videos.findByIdAndDelete(req.params.id)
           .then(r => {
@@ -105,6 +101,7 @@ router.delete("/:id", (req, res) => {
           });
 });
 
+// Delete all videos
 router.delete("/", (req, res) => {
     Videos.remove({})
          .then(r => {

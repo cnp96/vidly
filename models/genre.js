@@ -1,4 +1,3 @@
-const debug = require("debug")("vidly:db-genre");
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
@@ -20,31 +19,24 @@ const genreSchema = new mongoose.Schema({
    }
 });
 
-const Genre = mongoose.model("Genre", genreSchema);
+const Genre = mongoose.model("Genres", genreSchema);
 
 function validateGenre(genre, updating) {
-    let schema;
+    let schema = { name: Joi.string().min(5).max(50) };
     if(!updating) {
         schema = {
             name: Joi.string().min(5).max(50).required()
         };
     }
-    else {
-        schema = {
-            name: Joi.string().min(5).max(50)
-        };
-    }
-    
+
     return Joi.validate(genre, schema);
 }
 
 function genreExists(genre) {
-    try {
-        let temp = mongoose.Types.ObjectId(genre);
+    if( mongoose.Types.ObjectId.isValid(genre) ) {
         return Genre.findById(genre);
-    } catch(e) {
-        return false;
     }
+    return false;
 }
 
 module.exports = { Genre, validateGenre, genreExists }; 
