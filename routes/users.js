@@ -7,8 +7,6 @@ const router = require("express").Router();
 const mongoose = require("mongoose");
 const { User, isAUser, validateUser } = require("../models/users.js");
 
-Fawn.init(mongoose); // Init transaction control
-
 router.get("/", (req, res) => {
     User.find()
         .then(r => { res.send(r); })

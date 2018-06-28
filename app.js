@@ -8,6 +8,7 @@ const helmet = require("helmet"); // secures HTTP headers
 const morgan = require("morgan"); // logs requests
 const config = require("config"); // for configuration management
 const mongoose = require("mongoose");
+const Fawn = require("fawn");
 
 const app = express();
 
@@ -32,7 +33,10 @@ if(app.get("env") == "development") {
 
 // Database configuration
 mongoose.connect("mongodb://test:test12@ds161520.mlab.com:61520/vidly-dev")
-        .then(() => debugDb("Connected to MongoDB..."))
+        .then(() => {
+            debugDb("Connected to MongoDB...");
+            Fawn.init(mongoose); // Init transaction control
+        })
         .catch((e) => debugDb("Error connecting to DB...", e));
 
 // Configuration
@@ -52,6 +56,7 @@ const genreRoute = require("./routes/genre.js");
 const videosRoute = require("./routes/videos.js");
 const customersRoute = require("./routes/customers.js");
 const usersRoute = require("./routes/users.js");
+const rentalRoute = require("./routes/rental.js");
 
 // Route Handles
 app.all("/", (req, res) => res.send("Welcome to vidly."));
@@ -59,6 +64,7 @@ app.use("/api/genre", genreRoute);
 app.use("/api/videos", videosRoute);
 app.use("/api/customers", customersRoute);
 app.use("/api/users", usersRoute);
+app.use("/api/rentals", rentalRoute);
 
 // 404 Routes
 app.all("*", (req, res) => {

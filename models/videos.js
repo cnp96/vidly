@@ -9,9 +9,9 @@ const videosSchema = new mongoose.Schema({
        minlength: 5,
        maxlength: 255
    },
-   genre: {
+   genreId: {
        type: mongoose.Schema.Types.ObjectId,
-       ref: "Genre"
+       ref: "Genres"
    },
    numberInStock: {
        type: Number,
@@ -31,7 +31,7 @@ const videosSchema = new mongoose.Schema({
        minlength: 2,
        maxlength: 10
    },
-   creator: {
+   creatorId: {
        type: mongoose.Schema.Types.ObjectId,
        ref: "Users"
    },
@@ -51,8 +51,8 @@ function validateVideo(video, updating) {
     
     let schema = {
             title: Joi.string().min(5).max(255).required(),
-            creator: Joi.string().regex(/^[a-f\d]{24}$/i).required(),
-            genre: Joi.string().regex(/^[a-f\d]{24}$/i).required(),
+            creatorId: Joi.string().regex(/^[a-f\d]{24}$/i).required(),
+            genreId: Joi.string().regex(/^[a-f\d]{24}$/i).required(),
             numberInStock: Joi.number().integer().min(0).max(10000).required(),
             dailyRentalRate: Joi.number().min(0).max(300).required(),
             format: Joi.string().min(3).max(10)
@@ -60,7 +60,7 @@ function validateVideo(video, updating) {
     if( updating ) {
         schema = {
             title: Joi.string().min(5).max(255),
-            genre: Joi.string().regex(/^[a-f\d]{24}$/i),
+            genreId: Joi.string().regex(/^[a-f\d]{24}$/i),
             numberInStock: Joi.number().integer().min(0).max(10000),
             dailyRentalRate: Joi.number().min(0).max(300),
             format: Joi.string().min(3).max(10)
@@ -70,4 +70,10 @@ function validateVideo(video, updating) {
     return Joi.validate(video, schema);
 }
 
-module.exports = { Videos, validateVideo }; 
+function isAVideo(videoId) {
+    if( !mongoose.Types.ObjectId.isValid(videoId) )
+        return false;
+    return Videos.findById(videoId);
+}
+
+module.exports = { Videos, validateVideo, isAVideo }; 
