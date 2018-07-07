@@ -39,7 +39,7 @@ router.post("/", async (req, res) => {
     
     // Check if user exists
     const userExists = await isAUser(req.body.userId);
-    if(!userExists) return res.status(400).send("No such user.");    
+    if(!userExists) return res.status(404).send("No such user.");
         
     // Check if customer exists
     const customerExists = await isACustomer(req.body.userId);
@@ -57,23 +57,28 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/:id", (req, res) => {
-    if( !mongoose.Types.ObjectId.isValid(req.params.id) ) return res.status(400).send("No such customer.");
-
     const { error } = validateCustomer(req.body, true);
     if(error) return res.status(400).send(error.details[0].message);
     
     const payload = _.pick(req.body, ["name", "activeSubscriptions", "totalSubscriptions", "rentalDue", "rentalTotal", "isGold"]);
     if( Object.keys(payload).length == 0 ) return res.status(400).send("Invalid payload.");
     
-    Customer.findByIdAndUpdate(req.params.id, {$set: payload, $currentDate: {updatedOn: true}}, {upsert: false, new: true})
-            .then(r => {
-                if(!r) return res.status(404).send("No such customer.");
-                return res.send(r);
-            })
-            .catch(e => {
-                debugDb("Error udpating customer...", e.message);
-                res.status(500).send("Unable to update customer data. Please try after sometime.");
-            });
+    Customer.findByIdAndUpdate(req.params.id, {
+        $set: payload, 
+        $currentDate: {updatedOn: true}
+        
+    }, {
+        upsert: false, 
+        new: true
+    })
+    .then(r => {
+        if(!r) return res.status(404).send("No such customer.");
+        return res.send(r);
+    })
+    .catch(e => {
+        debugDb("Error udpating customer...", e.message);
+        res.status(500).send("Unable to update customer data. Please try after sometime.");
+    });
 });
 
 router.delete("/:id", (req, res) => {

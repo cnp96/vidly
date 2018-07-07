@@ -56,7 +56,7 @@ function validateCustomer(customer, updating) {
         isGold: Joi.boolean()
     };
     if(!updating)
-        schema.userId = Joi.string().regex(/^[a-f\d]{24}$/i).required();
+        schema.userId = Joi.objectId().required();
         
     return Joi.validate(customer, schema);
 }

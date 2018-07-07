@@ -3,6 +3,8 @@ const debugConfig = require("debug")("vidly:config");
 const debugDb = require("debug")("vidly:db");
 const debugWildRoute = require("debug")("vidly:wildRoute");
 
+const Joi = require("joi");
+Joi.objectId = require("joi-objectid")(Joi);
 const express = require("express");
 const helmet = require("helmet"); // secures HTTP headers
 const morgan = require("morgan"); // logs requests
@@ -57,6 +59,7 @@ const videosRoute = require("./routes/videos.js");
 const customersRoute = require("./routes/customers.js");
 const usersRoute = require("./routes/users.js");
 const rentalRoute = require("./routes/rental.js");
+const authRoute = require("./routes/auth.js");
 
 // Route Handles
 app.all("/", (req, res) => res.send("Welcome to vidly."));
@@ -65,6 +68,7 @@ app.use("/api/videos", videosRoute);
 app.use("/api/customers", customersRoute);
 app.use("/api/users", usersRoute);
 app.use("/api/rentals", rentalRoute);
+app.use("/api/auth", authRoute);
 
 // 404 Routes
 app.all("*", (req, res) => {

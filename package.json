@@ -4,20 +4,25 @@
   "description": "A video rental website built with node.js",
   "main": "app.js",
   "scripts": {
-    "start": "nodejs app.js",
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Chinmaya Pati",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^3.0.0",
     "config": "^1.30.0",
     "date-diff": "^0.2.0",
     "debug": "^3.1.0",
+    "express": "^4.16.3",
     "fawn": "^2.1.5",
     "helmet": "^3.12.1",
     "joi": "^13.4.0",
+    "joi-objectid": "^2.0.0",
     "loadash": "^1.0.0",
     "lodash": "^4.17.10",
-    "morgan": "^1.9.0"
+    "mongoose": "^5.2.1",
+    "morgan": "^1.9.0",
+    "nodemon": "^1.17.5"
   }
 }

@@ -1,11 +1,12 @@
 const debug = require("debug")("vidly:log");
 const debugDb = require("debug")("vidly:users");
-const Fawn = require("fawn");
 
+const bcrypt = require("bcrypt");
+const Fawn = require("fawn");
 const _ = require("lodash");
 const router = require("express").Router();
 const mongoose = require("mongoose");
-const { User, isAUser, validateUser } = require("../models/users.js");
+const { User, validateUser } = require("../models/users.js");
 
 router.get("/", (req, res) => {
     User.find()
@@ -30,12 +31,15 @@ router.get("/:id", (req, res) => {
        });
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
     const {error} = validateUser(req.body);
     if(error) return res.status(400).send(error.details[0].message);
     
     const payload = _.pick(req.body, ["firstName", "middleName", "lastName", "mobile", "email", "password"]);
     if( payload.length == 0 ) return res.status(400).send("Invalid payload.");
+    
+    const salt = await bcrypt.genSalt(10);
+    payload.password = await bcrypt.hash(payload.password, salt);
     
     // Perform transaction to save the user and also create a customer profile
     Fawn.Task()

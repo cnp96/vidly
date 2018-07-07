@@ -9,7 +9,7 @@ const { Genre, validateGenre } = require("../models/genre.js");
 
 router.get("/", (req, res) => {
 
-    Genre.find().sort("-updatedOn").select("name _id")
+    Genre.find().sort("-updatedOn").select("name")
          .then(r => {
             return res.send(r);
          })
@@ -22,7 +22,6 @@ router.get("/", (req, res) => {
 router.post("/", (req, res) => {
     
     const { error } = validateGenre(req.body);
-    
     if(error) return res.status(400).send(error.details[0].message);
     
     const payload = _.pick(req.body, ["name"]);   
@@ -40,7 +39,7 @@ router.post("/", (req, res) => {
 
 router.put("/:id", (req, res) => {
 
-    if( !mongoose.Types.ObjectId.isValid(req.params.id) ) return res.status(400).send("No such customer.");
+    if( !mongoose.Types.ObjectId.isValid(req.params.id) ) return res.status(400).send("No such genre.");
     
     const { error } = validateGenre(req.body, true);
     if(error) return res.status(400).send(error.details[0].message);

@@ -51,8 +51,8 @@ function validateVideo(video, updating) {
     
     let schema = {
             title: Joi.string().min(5).max(255).required(),
-            creatorId: Joi.string().regex(/^[a-f\d]{24}$/i).required(),
-            genreId: Joi.string().regex(/^[a-f\d]{24}$/i).required(),
+            creatorId: Joi.objectId().required(),
+            genreId: Joi.objectId().required(),
             numberInStock: Joi.number().integer().min(0).max(10000).required(),
             dailyRentalRate: Joi.number().min(0).max(300).required(),
             format: Joi.string().min(3).max(10)
@@ -60,7 +60,7 @@ function validateVideo(video, updating) {
     if( updating ) {
         schema = {
             title: Joi.string().min(5).max(255),
-            genreId: Joi.string().regex(/^[a-f\d]{24}$/i),
+            genreId: Joi.objectId(),
             numberInStock: Joi.number().integer().min(0).max(10000),
             dailyRentalRate: Joi.number().min(0).max(300),
             format: Joi.string().min(3).max(10)

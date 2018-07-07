@@ -37,8 +37,8 @@ const Rental = mongoose.model("Rentals", rentalSchema);
 
 function validateRental(rental, updating) {
     let schema = {
-        customerId: Joi.string().regex(/^[a-f\d]{24}$/i).required(),
-        videoId: Joi.string().regex(/^[a-f\d]{24}$/i).required()
+        customerId: Joi.objectId().required(),
+        videoId: Joi.objectId().required()
     };
     return Joi.validate(rental, schema);
 }
