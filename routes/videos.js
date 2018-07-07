@@ -10,6 +10,9 @@ const { Videos, validateVideo } = require("../models/videos.js");
 const { genreExists } = require("../models/genre.js");
 const { User } = require("../models/users.js");
 
+const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
+
 // Retrieve all
 router.get("/", (req, res) => {
 
@@ -44,7 +47,7 @@ router.get("/:id", (req, res) => {
 });
 
 // Create video
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
     
     const { error } = validateVideo(req.body);
     if(error) return res.status(400).send(error.details[0].message);
@@ -68,7 +71,7 @@ router.post("/", async (req, res) => {
 });
 
 // Update video
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
     
     if( !mongoose.Types.ObjectId.isValid(req.params.id) ) return res.status(400).send("No such video.");
 
@@ -93,7 +96,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // Delete one video
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
     
     if( !mongoose.Types.ObjectId.isValid(req.params.id) ) return res.status(400).send("No such video.");
     
@@ -114,7 +117,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 // Delete all videos
-router.delete("/", async (req, res) => {
+router.delete("/", [auth, admin], async (req, res) => {
     let videos = await Videos.find();
     let customerIds = [];
     videos.forEach(v => customerIds.push(v.creatorId));

@@ -1,16 +1,17 @@
 const debug = require("debug")("vidly:auth");
-
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const router = require("express").Router();
-const { User } = require("../models/users.js");
+const { User } = require("../models/users");
+const isLoggedIn = require("../middleware/isLoggedIn");
 
-router.post("/", async (req, res) => {
+router.post("/", isLoggedIn, async (req, res) => {
+    
     const {error} = validate(req.body);
     if(error) return res.status(400).send(error.details[0].message);
     
     // check if user exists
-    const user = await User.findOne({email: req.body.email});    
+    const user = await User.findOne({email: req.body.email});
     if(!user) return res.status(400).send("Invalid email or password.");
     
     // check if password matched        

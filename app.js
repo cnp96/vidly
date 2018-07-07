@@ -55,12 +55,12 @@ try {
 
 
 // Route Config
-const genreRoute = require("./routes/genre.js");
-const videosRoute = require("./routes/videos.js");
-const customersRoute = require("./routes/customers.js");
-const usersRoute = require("./routes/users.js");
-const rentalRoute = require("./routes/rental.js");
-const authRoute = require("./routes/auth.js");
+const genreRoute = require("./routes/genre");
+const videosRoute = require("./routes/videos");
+const customersRoute = require("./routes/customers");
+const usersRoute = require("./routes/users");
+const rentalRoute = require("./routes/rental");
+const authRoute = require("./routes/auth");
 
 // Route Handles
 app.all("/", (req, res) => res.send("Welcome to vidly."));

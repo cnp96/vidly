@@ -5,7 +5,9 @@ const _ = require("lodash");
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const { Genre, validateGenre } = require("../models/genre.js");
+const { Genre, validateGenre } = require("../models/genre");
+const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
 
 router.get("/", (req, res) => {
 
@@ -19,7 +21,7 @@ router.get("/", (req, res) => {
          });
 });
 
-router.post("/", (req, res) => {
+router.post("/", [auth, admin], (req, res) => {
     
     const { error } = validateGenre(req.body);
     if(error) return res.status(400).send(error.details[0].message);
@@ -37,7 +39,7 @@ router.post("/", (req, res) => {
         });
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", auth, (req, res) => {
 
     if( !mongoose.Types.ObjectId.isValid(req.params.id) ) return res.status(400).send("No such genre.");
     
@@ -60,7 +62,7 @@ router.put("/:id", (req, res) => {
          });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", auth, (req, res) => {
     
     if( !mongoose.Types.ObjectId.isValid(req.params.id) ) return res.status(404).send("No such genre.");
     
@@ -76,7 +78,7 @@ router.delete("/:id", (req, res) => {
          });
 });
 
-router.delete("/", (req, res) => {
+router.delete("/", [auth,admin], (req, res) => {
    Genre.remove({})
         .then(r => {
             res.send(r.n + " records deleted.");

@@ -7,8 +7,12 @@ const router = require("express").Router();
 const mongoose = require("mongoose");
 const { Customer, validateCustomer, isACustomer } = require("../models/customers.js");
 const { isAUser } = require("../models/users.js");
+const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
 
-router.get("/", (req, res) => {
+router.use(auth);
+
+router.get("/", admin, (req, res) => {
    Customer.find().populate("userId", "firstName middleName lastName").select("activeSubscriptions totalSubscriptions rentalDue rentalTotal isGold")
            .then(r => {
                return res.send(r);
@@ -19,21 +23,7 @@ router.get("/", (req, res) => {
            });
 });
 
-router.get("/:id", (req, res) => {
-    if( !mongoose.Types.ObjectId.isValid(req.params.id) )return res.redirect(302, "/api/customers");
-    
-    Customer.findById(req.params.id).populate("userId", "firstName middleName lastName").select("activeSubscriptions totalSubscriptions rentalDue rentalTotal isGold")
-            .then(r => {
-                if(!r) return res.redirect(302, "/api/customers");
-                return res.send(r);
-            })
-            .catch(e => {
-               debugDb("Error getting customer...", e.message);
-               res.status(500).send("Unable to get customer data. Please try after sometime.");
-            });
-});
-
-router.post("/", async (req, res) => {
+router.post("/", admin, async (req, res) => {
     const { error } = validateCustomer(req.body);
     if( error ) return res.status(400).send(error.details[0].message);
     
@@ -56,14 +46,14 @@ router.post("/", async (req, res) => {
                 });
 });
 
-router.put("/:id", (req, res) => {
+router.put("/me", (req, res) => {
     const { error } = validateCustomer(req.body, true);
     if(error) return res.status(400).send(error.details[0].message);
     
     const payload = _.pick(req.body, ["name", "activeSubscriptions", "totalSubscriptions", "rentalDue", "rentalTotal", "isGold"]);
     if( Object.keys(payload).length == 0 ) return res.status(400).send("Invalid payload.");
     
-    Customer.findByIdAndUpdate(req.params.id, {
+    Customer.findByIdAndUpdate(req.params._id, {
         $set: payload, 
         $currentDate: {updatedOn: true}
         
@@ -81,10 +71,10 @@ router.put("/:id", (req, res) => {
     });
 });
 
-router.delete("/:id", (req, res) => {
-    if( !mongoose.Types.ObjectId.isValid(req.params.id) ) return res.status(404).send("No such customer.");
+router.delete("/me", (req, res) => {
+    if( !mongoose.Types.ObjectId.isValid(req.user._id) ) return res.status(404).send("No such customer.");
     
-    Customer.findByIdAndDelete(req.params.id)
+    Customer.findByIdAndDelete(req.user._id)
             .then(r => {
                 if(!r) return res.status(404).send("No such user.");
                 return res.send(r);
@@ -95,7 +85,7 @@ router.delete("/:id", (req, res) => {
             });
 });
 
-router.delete("/", (req, res) => {
+router.delete("/", admin, (req, res) => {
     Customer.remove({})
             .then(r => {
                 return res.send(r.n + " records deleted.");

@@ -8,6 +8,10 @@ const DateDiff = require("date-diff");
 const { Rental, validateRental } = require("../models/rental.js");
 const { Customer, isACustomer } = require("../models/customers.js");
 const { Videos, isAVideo } = require("../models/videos.js");
+const auth = require("../middleware/auth");
+//const admin = require("../middleware/admin");
+
+router.use(auth);
 
 router.get("/", (req, res) => {
     Rental.find().sort("-dateOut")

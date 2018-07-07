@@ -1,4 +1,3 @@
-const debug = require("debug")("vidly:log");
 const debugDb = require("debug")("vidly:users");
 
 const bcrypt = require("bcrypt");
@@ -6,9 +5,14 @@ const Fawn = require("fawn");
 const _ = require("lodash");
 const router = require("express").Router();
 const mongoose = require("mongoose");
-const { User, validateUser } = require("../models/users.js");
+const { User, validateUser } = require("../models/users");
 
-router.get("/", (req, res) => {
+const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
+
+router.use(auth);
+
+router.get("/", admin, (req, res) => {
     User.find()
         .then(r => { res.send(r); })
         .catch(e => { 
@@ -17,18 +21,15 @@ router.get("/", (req, res) => {
         });
 });
 
-router.get("/:id", (req, res) => {
-   if(!mongoose.Types.ObjectId(req.params.id)) return res.redirect(302, "/api/users");
-   
-   User.findById(req.params.id)
-       .then(r => {
-          if(!r) return res.redirect(302, "/api/users");
-          return res.send(r);
-       })
-       .catch(e => {
-          debugDb("Error getting user data...", e.message);
-          res.status(500).send("Unable to get user data. Please try after sometime.");
-       });
+router.get("/me", (req, res) => {
+    User.findById(req.user._id).select("-password")
+        .then(r => {
+            res.send(r);
+        })
+        .catch(e => {
+            debugDb("Error getting profile:", e.message);
+            res.status(500).send("Internal server error.");
+        });
 });
 
 router.post("/", async (req, res) => {
@@ -57,8 +58,8 @@ router.post("/", async (req, res) => {
         });
 });
 
-router.put("/:id", (req, res) => {
-    if(!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(404).send("No such user.");
+router.put("/me", (req, res) => {
+    if(!mongoose.Types.ObjectId.isValid(req.user._id)) return res.status(404).send("No such user.");
     
     const {error} = validateUser(req.body, true);
     if(error) return res.status(400).send(error.details[0].message);
@@ -66,7 +67,7 @@ router.put("/:id", (req, res) => {
     const payload = _.pick(req.body, ["firstName", "middleName", "lastName", "email", "mobile", "password", "operations"]);
     if( Object.keys(payload).length == 0 ) return res.status(400).send("Invalid payload.");
 
-    User.findByIdAndUpdate(req.params.id, {$set: payload, $currentDate: {updatedOn: true}}, {upsert: false, new: true})
+    User.findByIdAndUpdate(req.user.id, {$set: payload, $currentDate: {updatedOn: true}}, {upsert: false, new: true})
         .then(r => {
             if(!r) return res.status(404).send("No such user.");
             return res.send(r);
@@ -80,10 +81,10 @@ router.put("/:id", (req, res) => {
         });
 });
 
-router.delete("/:id", (req, res) => {
-    if(!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(404).send("No such user.");
+router.delete("/me", (req, res) => {
+    if(!mongoose.Types.ObjectId.isValid(req.user._id)) return res.status(404).send("No such user.");
     
-    User.findByIdAndDelete(req.params.id)
+    User.findByIdAndDelete(req.user._id)
         .then(r => {
             if(!r) return res.status(404).send("No such user.");
             return res.send(r);
@@ -94,7 +95,7 @@ router.delete("/:id", (req, res) => {
         });
 });
 
-router.delete("/", (req, res) => {
+router.delete("/", admin, (req, res) => {
     User.remove({})
         .then(r => {
             return res.send(r.n + " records deleted.");
