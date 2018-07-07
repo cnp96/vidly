@@ -34,7 +34,7 @@ if(app.get("env") == "development") {
 
 
 // Database configuration
-mongoose.connect("mongodb://test:test12@ds161520.mlab.com:61520/vidly-dev")
+mongoose.connect("mongodb://test:test12@ds161520.mlab.com:61520/vidly-dev", {useNewUrlParser: true})
         .then(() => {
             debugDb("Connected to MongoDB...");
             Fawn.init(mongoose); // Init transaction control
@@ -42,15 +42,16 @@ mongoose.connect("mongodb://test:test12@ds161520.mlab.com:61520/vidly-dev")
         .catch((e) => debugDb("Error connecting to DB...", e));
 
 // Configuration
-/* try {
+try {
     const env = app.get("env");
     debugConfig("ENV:", env);
-    debugConfig("Mail Server:", config.get(env+".mail.host"));
-    debugConfig("Mail Password:", config.get(env+".mail.password"));
+    debugConfig("Mail Server:", config.get("mail.host"));
+    debugConfig("Mail Password:", config.get("mail.password"));
+    debugConfig("jwtPrivatekey: ", config.get("jwtPrivatekey"));
 } catch(e) {
-    debugConfig("FATAL", e);
+    debugConfig("FATAL", e.message);
     process.exit(1);
-} */
+}
 
 
 // Route Config
