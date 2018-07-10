@@ -1,0 +1,15 @@
+{"level":"info","message":"Connected to MongoDB","timestamp":"2018-07-10T20:31:19.403Z"}
+{"level":"info","message":"Instantiated Fawn","timestamp":"2018-07-10T20:31:19.414Z"}
+{"name":"MongoError","ok":0,"errmsg":"Authentication failed.","code":18,"codeName":"AuthenticationFailed","level":"error","timestamp":"2018-07-10T20:36:16.599Z"}
+{"name":"MongoError","ok":0,"errmsg":"Authentication failed.","code":18,"codeName":"AuthenticationFailed","level":"error","timestamp":"2018-07-10T20:36:39.491Z"}
+{"name":"MongoError","ok":0,"errmsg":"Authentication failed.","code":18,"codeName":"AuthenticationFailed","level":"error","timestamp":"2018-07-10T20:37:09.780Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2018-07-10T20:40:55.085Z"}
+{"level":"info","message":"Instantiated Fawn","timestamp":"2018-07-10T20:40:55.094Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2018-07-10T20:42:14.393Z"}
+{"level":"info","message":"Instantiated Fawn","timestamp":"2018-07-10T20:42:14.404Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2018-07-10T20:44:11.736Z"}
+{"level":"info","message":"Instantiated Fawn","timestamp":"2018-07-10T20:44:11.746Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2018-07-10T20:44:30.016Z"}
+{"level":"info","message":"Instantiated Fawn","timestamp":"2018-07-10T20:44:30.028Z"}
+{"level":"info","message":"Connected to MongoDB","timestamp":"2018-07-10T20:44:43.190Z"}
+{"level":"info","message":"Instantiated Fawn","timestamp":"2018-07-10T20:44:43.202Z"}

@@ -4,14 +4,15 @@ const bcrypt = require("bcrypt");
 const router = require("express").Router();
 const { User } = require("../models/users");
 const isLoggedIn = require("../middleware/isLoggedIn");
+const asyncHandler = require("../middleware/asyncHandler");
 
-router.post("/", isLoggedIn, async (req, res) => {
+router.post("/", isLoggedIn, asyncHandler(async (req, res, next) => {
     
     const {error} = validate(req.body);
     if(error) return res.status(400).send(error.details[0].message);
     
     // check if user exists
-    const user = await User.findOne({email: req.body.email});
+    const user = await User.findOne({email: req.body.email}).catch(e => next(e));
     if(!user) return res.status(400).send("Invalid email or password.");
     
     // check if password matched        
@@ -21,7 +22,7 @@ router.post("/", isLoggedIn, async (req, res) => {
     const token = user.generateToken();
     res.header("x-auth-token", token).send(true);
     
-});
+}));
 
 function validate(user) {
     const schema = {
